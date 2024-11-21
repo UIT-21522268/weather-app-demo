@@ -3,6 +3,7 @@ import { TiWeatherPartlySunny } from "react-icons/ti";
 import { GrMapLocation } from "react-icons/gr";
 import { GrLocation } from "react-icons/gr";
 import SearchAppBar from './Searchbar/Searchbar';
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type Props = {}
 
 export default function Navbar({ }: Props) {

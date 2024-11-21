@@ -1,0 +1,1 @@
+1. chuyển máy setup lại mấy dep => npm install --legacy-peer-deps (tải lại hết các thư viện minh đẫ tải)
