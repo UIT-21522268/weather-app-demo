@@ -8,6 +8,7 @@ import {
   useQuery
 } from '@tanstack/react-query'
 import axios from "axios";
+import Container from "./components/Container";
 
 interface WeatherData {
   lat: number;
@@ -76,7 +77,7 @@ export default function Home() {
   const { isPending, error, data } = useQuery<WeatherData>({
     queryKey: ['repoData'],
     queryFn: async () => { //35:38 
-      const { data } = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?lat=10.762622&lon=106.660172&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}`);
+      const { data } = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?lat=10.762622&lon=106.660172&units=metric&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}`);
       return data;
     }
   });
@@ -140,11 +141,12 @@ const getdayOfWeek = (timestamp: number) => {
             <h2 className="flex text-lg  gap-1 items-end">
             <p className="text-3xl">{currentWeather?.dt ? getdayOfWeek(currentWeather.dt) : "N/A"}</p>
             <p>{currentWeather?.dt ? formatDateWithDay(currentWeather.dt) : "N/A"}</p> 
-            {/* 47:18 */}
+            {/* 51:07 */}
             </h2>
-            <div className=""></div>
+            <Container className="gap-10 px-6 items-center "></Container>
         </section>
         {/* forecast 7 days */}
+        <section></section>
         <section></section>
         <section></section>
         <section></section>
