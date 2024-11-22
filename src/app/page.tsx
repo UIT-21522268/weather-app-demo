@@ -3,6 +3,7 @@
 
 import Navbar from "./components/Navbar";
 import Loader from "./components/Loading";
+import WeatherIcon from "./components/WeatherIcon";
 import {
 
   useQuery
@@ -17,6 +18,7 @@ interface WeatherData {
   timezone_offset: number;
   current: CurrentWeather;
   hourly: HourlyWeather[];
+  daily: DailyWeather[]; // Thêm vào dữ liệu daily
 }
 
 interface CurrentWeather {
@@ -55,6 +57,45 @@ interface HourlyWeather {
   rain?: RainData;
 }
 
+interface DailyWeather {
+  dt: number;
+  sunrise: number;
+  sunset: number;
+  moonrise: number;
+  moonset: number;
+  moon_phase: number;
+  summary: string; // Mô tả ngắn về thời tiết trong ngày
+  temp: DailyTemperature;
+  feels_like: DailyFeelsLike;
+  pressure: number;
+  humidity: number;
+  dew_point: number;
+  wind_speed: number;
+  wind_deg: number;
+  wind_gust?: number;
+  weather: WeatherCondition[];
+  clouds: number;
+  pop: number; // Xác suất mưa
+  rain?: number; // Lượng mưa (nếu có)
+  uvi: number; // Chỉ số UV
+}
+
+interface DailyTemperature {
+  day: number;
+  min: number;
+  max: number;
+  night: number;
+  eve: number;
+  morn: number;
+}
+
+interface DailyFeelsLike {
+  day: number;
+  night: number;
+  eve: number;
+  morn: number;
+}
+
 interface WeatherCondition {
   id: number;
   main: string;
@@ -82,7 +123,7 @@ export default function Home() {
     }
   });
   const currentWeather = data?.current;
-
+  
   if (isPending) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -137,13 +178,41 @@ const getdayOfWeek = (timestamp: number) => {
       <main className="px-9 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
         {/* today*/}
         <section>
-          
-            <h2 className="flex text-lg  gap-1 items-end">
+           
+            <h2 className="flex text-lg  gap-1 items-end py-4">
             <p className="text-3xl">{currentWeather?.dt ? getdayOfWeek(currentWeather.dt) : "N/A"}</p>
             <p>{currentWeather?.dt ? formatDateWithDay(currentWeather.dt) : "N/A"}</p> 
             {/* 51:07 */}
             </h2>
-            <Container className="gap-10 px-6 items-center "></Container>
+            <Container className="gap-10 px-6 items-center ">
+               <div className="flex flex-col gap-0 items-center content-center "> 
+                  <div className="text-5xl pl-3">{Math.floor(currentWeather?.temp ?? 0)}°</div>
+                  <div className="text-sm">Feels like {Math.floor(currentWeather?.feels_like ?? 0)}°</div>
+                  <p className="text-xs space-x-2">
+                    <span className="text-red-600 font-medium">{Math.floor(data.daily[0].temp.max)}↑°</span>
+                    <span className="text-blue-400 font-medium">{Math.floor(data.daily[0].temp.min)}↓°</span>
+                  </p>
+               </div>
+               {/* time and weather icon */}
+               <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
+                  {data.hourly.map((d,i)=>(
+                     <div 
+                     key = {i}
+                     className="flex flex-col justify-between gap-2 items-center text-xs font-semibold">
+                        <p className="text-nowrap">
+                        {new Date(d.dt * 1000).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                        })}
+                        </p>
+                        <WeatherIcon iconName={data.hourly[i].weather[3].icon}/> 
+                        <p>{Math.floor(data.hourly[i].temp)}°1:06</p>
+                        
+                     </div>
+                  ))}
+               </div>
+            </ Container>
         </section>
         {/* forecast 7 days */}
         <section></section>
