@@ -1,6 +1,6 @@
 'use client'
 
-
+import {getDayorNightIcon} from "./ultis/getDayorNightIcon";
 import Navbar from "./components/Navbar";
 import Loader from "./components/Loading";
 import WeatherIcon from "./components/WeatherIcon";
@@ -123,7 +123,7 @@ export default function Home() {
     }
   });
   const currentWeather = data?.current;
-  
+ 
   if (isPending) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -180,9 +180,9 @@ const getdayOfWeek = (timestamp: number) => {
         <section>
            
             <h2 className="flex text-lg  gap-1 items-end py-4">
-            <p className="text-3xl">{currentWeather?.dt ? getdayOfWeek(currentWeather.dt) : "N/A"}</p>
-            <p>{currentWeather?.dt ? formatDateWithDay(currentWeather.dt) : "N/A"}</p> 
-            {/* 51:07 */}
+              <p className="text-3xl">{currentWeather?.dt ? getdayOfWeek(currentWeather.dt) : "N/A"}</p>
+              <p>{currentWeather?.dt ? formatDateWithDay(currentWeather.dt) : "N/A"}</p> 
+              {/* 51:07 */}
             </h2>
             <Container className="gap-10 px-6 items-center ">
                <div className="flex flex-col gap-0 items-center content-center "> 
@@ -206,8 +206,9 @@ const getdayOfWeek = (timestamp: number) => {
                           hour12: true,
                         })}
                         </p>
-                        <WeatherIcon iconName={data.hourly[i].weather[3].icon}/> 
-                        <p>{Math.floor(data.hourly[i].temp)}°1:06</p>
+                        {/* <WeatherIcon iconName={data.hourly?.[i]?.weather?.[0]?.icon} /> */}
+                        <WeatherIcon iconName={getDayorNightIcon(data.hourly?.[i]?.weather?.[0]?.icon,data.hourly?.[i]?.dt ? String(data.hourly?.[i]?.dt * 1000) : '' )} />
+                        <p>{Math.floor(data.hourly[i].temp)}°</p>
                         
                      </div>
                   ))}
