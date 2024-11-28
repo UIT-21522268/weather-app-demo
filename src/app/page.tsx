@@ -1,9 +1,10 @@
 'use client'
-
+import WeatherDetail from "./components/WeatherDetail";
 import {getDayorNightIcon} from "./ultis/getDayorNightIcon";
 import Navbar from "./components/Navbar";
 import Loader from "./components/Loading";
 import WeatherIcon from "./components/WeatherIcon";
+import {meterToKilometer} from "./ultis/meterToKm";
 import {
 
   useQuery
@@ -123,7 +124,8 @@ export default function Home() {
     }
   });
   const currentWeather = data?.current;
- 
+  console.log('data',data);
+  //console.log('weather',data?.current.weather[0].description);
   if (isPending) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -168,6 +170,7 @@ const getdayOfWeek = (timestamp: number) => {
   const dayOfWeek = daysOfWeek[localDate.getUTCDay()]; // Lấy tên thứ
   return `${dayOfWeek}`;
 };
+//bg-gray-100
   if (error) return 'An error has occurred: ' + error.message;
   return (
     //https://api.openweathermap.org/data/2.5/weather?q=London&appid=127ea425bde1d0716b95f62732f7f9b7&cnt=56
@@ -180,17 +183,17 @@ const getdayOfWeek = (timestamp: number) => {
         <section>
            
             <h2 className="flex text-lg  gap-1 items-end py-4">
-              <p className="text-3xl">{currentWeather?.dt ? getdayOfWeek(currentWeather.dt) : "N/A"}</p>
-              <p>{currentWeather?.dt ? formatDateWithDay(currentWeather.dt) : "N/A"}</p> 
+              <p className="text-3xl text-[#F78C6A]">{currentWeather?.dt ? getdayOfWeek(currentWeather.dt) : "N/A"}</p>
+              <p className="text-[#FFD167]">{currentWeather?.dt ? formatDateWithDay(currentWeather.dt) : "N/A"}</p> 
               {/* 51:07 */}
             </h2>
-            <Container className="gap-10 px-6 items-center ">
+            <Container className="gap-10 px-6 items-center w-full">
                <div className="flex flex-col gap-0 items-center content-center "> 
                   <div className="text-5xl pl-3">{Math.floor(currentWeather?.temp ?? 0)}°</div>
                   <div className="text-sm">Feels like {Math.floor(currentWeather?.feels_like ?? 0)}°</div>
                   <p className="text-xs space-x-2">
-                    <span className="text-red-600 font-medium">{Math.floor(data.daily[0].temp.max)}↑°</span>
-                    <span className="text-blue-400 font-medium">{Math.floor(data.daily[0].temp.min)}↓°</span>
+                    <span className="text-[#F04770] font-medium">{Math.floor(data.daily[0].temp.max)}↑°</span>
+                    <span className="text-[#108AB1] font-medium">{Math.floor(data.daily[0].temp.min)}↓°</span>
                   </p>
                </div>
                {/* time and weather icon */}
@@ -200,26 +203,50 @@ const getdayOfWeek = (timestamp: number) => {
                      key = {i}
                      className="flex flex-col justify-between gap-2 items-center text-xs font-semibold">
                         <p className="text-nowrap">
-                        {new Date(d.dt * 1000).toLocaleTimeString('en-US', {
+                        {new Date(d.dt * 1000).toLocaleTimeString('vi-VI', {
                           hour: '2-digit',
                           minute: '2-digit',
                           hour12: true,
                         })}
                         </p>
-                        {/* <WeatherIcon iconName={data.hourly?.[i]?.weather?.[0]?.icon} /> */}
-                        <WeatherIcon iconName={getDayorNightIcon(data.hourly?.[i]?.weather?.[0]?.icon,data.hourly?.[i]?.dt ? String(data.hourly?.[i]?.dt * 1000) : '' )} />
+                        {/* <WeatherIcon iconname={data.hourly?.[i]?.weather?.[0]?.icon} /> */}
+                       <WeatherIcon iconname={getDayorNightIcon(data.hourly?.[i]?.weather?.[0]?.icon,data.hourly?.[i]?.dt ? String(data.hourly?.[i]?.dt * 1000) : '' )} /> 
                         <p>{Math.floor(data.hourly[i].temp)}°</p>
                         
                      </div>
                   ))}
                </div>
             </ Container>
+            <div className="flex gap-4 mt-6">
+                  {/* left */}
+                  <Container className="w-fit justify-center items-center flex-col ">
+                      <div className="text-lg px-7 capitalize text-nowrap">{data?.current.weather[0].description}</div>
+                      <WeatherIcon iconname={getDayorNightIcon(data.hourly?.[0]?.weather?.[0]?.icon,data.hourly?.[0]?.dt ? String(data.hourly?.[0]?.dt ) : '' )} />
+                  </Container>
+                  {/* right */}
+                  <Container className="gap-6 sm:gap-16 overflow-x-auto w-full justify-between px-5 bg-[#91cfec] ">
+                      <WeatherDetail visability={meterToKilometer(data.current.visibility)} humidity={`${data.current.humidity}%`}  
+                              windSpeed={`${data.current.wind_speed}km/h`}  airPressure={`${data.current.pressure}hPa`} 
+                              sunrise= {new Date(data.current.sunrise * 1000).toLocaleTimeString('vi-VI', {   
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      hour12: true,
+                                    })}  
+                              sunset= {new Date(data.current.sunset * 1000).toLocaleTimeString('vi-VI', {   
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true,
+                              })}  
+                              
+                              />
+                  </Container>
+            </div>
         </section>
         {/* forecast 7 days */}
-        <section></section>
-        <section></section>
-        <section></section>
-        <section></section>
+        <section>
+          <h2 className="text-3xl text-[#F78C6A]">7-Day Forecast</h2>
+        </section>
+       
       </main>
     </div>
 

@@ -1,1 +1,8 @@
 1. chuyển máy setup lại mấy dep => npm install --legacy-peer-deps (tải lại hết các thư viện minh đẫ tải)
+2. extension tailwind css , icon , auto import, copi
+3. màu: đỏ: #F04770
+        cam: #F78C6A
+        vàng: #FFD167
+        xanh lục: #06D7A0
+        xanh đậm: #108AB1
+        xanh đen: #073A4B
