@@ -6,3 +6,4 @@
         xanh lục: #06D7A0
         xanh đậm: #108AB1
         xanh đen: #073A4B
+4.color the tag name

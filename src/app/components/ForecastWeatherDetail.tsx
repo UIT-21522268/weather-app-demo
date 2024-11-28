@@ -16,13 +16,15 @@ export interface ForecastWeatherDetailProps extends WeatherDetailProps{
 }
 export default function ForecastWeatherDetail(props: ForecastWeatherDetailProps) {
   return (
-    <Container className='gap-4'>
+    <Container className=' gap-4 '>
         {/* left */}
         <section className='flex gap-4 items-center px-4'>
+            <div className="flex flex-col px-4 items-center">
             <WeatherIcon iconname={props.weatherIcon} />
             <p className='text-lg'>{props.date}</p>
             <p className='text-md'>{props.day}</p>
             {/*  */}
+            </div>
             <div className="flex flex-col px-4">
                 <p className='text-5xl'>{Math.floor(props?.temp ?? 0)}°{}</p>
                 <p className='text-sm text-nowrap'>Feels like {Math.floor(props?.feels_like ?? 0)}°</p>
@@ -30,7 +32,7 @@ export default function ForecastWeatherDetail(props: ForecastWeatherDetailProps)
             </div>
         </section>
         {/* RIGHT */}
-        <section className='flex gap-4 overflow-x-auto w-full justify-between px-5 bg-[#91cfec]'>
+        <section className='flex gap-4 overflow-x-auto w-full justify-between px-5 '>
             <WeatherDetail {...props}
             />
         </section>

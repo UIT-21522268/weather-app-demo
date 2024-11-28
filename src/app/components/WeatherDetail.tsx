@@ -37,11 +37,7 @@ export default function WeatherDetail(props: WeatherDetailProps) {
         information='Air Pressure'
         value={props.airPressure}
     />
-    <SingleWeather
-        icon={<FaWind />}
-        information='Sun Rise'
-        value={props.sunrise}
-    />
+ 
     <SingleWeather
         icon={<FiSunrise />}
         information='Sun Rise'

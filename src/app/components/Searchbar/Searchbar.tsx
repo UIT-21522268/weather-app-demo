@@ -1,74 +1,38 @@
-'use client';
-import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
+/** @format */
 
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
+import { cn } from "../../ultis/cn";
+import React from "react";
+import { IoSearch } from "react-icons/io5";
 
-import InputBase from '@mui/material/InputBase';
-import { CiSearch } from "react-icons/ci";
+type Props = {
+  className?: string;
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement> | undefined;
+  onSubmit: React.FormEventHandler<HTMLFormElement> | undefined;
+};
 
-
-const Search = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(1),
-        width: 'auto',
-    },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    width: '100%',
-    '& .MuiInputBase-input': {
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create('width'),
-        [theme.breakpoints.up('sm')]: {
-            width: '12ch',
-            '&:focus': {
-                width: '20ch',
-            },
-        },
-    },
-}));
-
-export default function SearchAppBar() {
-    return (
-        <Box sx={{ flexGrow: 1 }}>
-
-            <Toolbar >
-
-                <Search className='border'>
-                    <SearchIconWrapper>
-                        <CiSearch />
-                    </SearchIconWrapper>
-                    <StyledInputBase
-                        placeholder="Location…"
-                        inputProps={{ 'aria-label': 'search' }}
-                        className='text-sm'
-                    />
-                </Search>
-            </Toolbar>
-
-        </Box>
-    );
+export default function SearchBox(props: Props) {
+  return (
+    
+        <div className="relative">
+        <form
+        onSubmit={props.onSubmit}
+        className={cn(
+            "flex items-center justify-center h-10",
+            props.className
+        )}
+        >
+        <input
+            type="text"
+            value={props.value}
+            onChange={props.onChange}
+            placeholder="Search location.."
+            className="px-4 py-2 w-[230px] border border-gray-300 rounded-l-md focus:outline-none focus:border-blue-500 h-full"
+        />
+        <button className="px-4 py-[9px] bg-blue-500 text-white rounded-r-md focus:outline-none hover:bg-blue-600 h-full">
+            <IoSearch />
+        </button>
+        </form>
+    </div>
+  );
 }

@@ -5,6 +5,9 @@ import Navbar from "./components/Navbar";
 import Loader from "./components/Loading";
 import WeatherIcon from "./components/WeatherIcon";
 import {meterToKilometer} from "./ultis/meterToKm";
+import ForecastWeatherDetail from "./components/ForecastWeatherDetail";
+import Fab from '@mui/material/Fab';
+import GitHubIcon from '@mui/icons-material/GitHub';
 import {
 
   useQuery
@@ -124,7 +127,22 @@ export default function Home() {
     }
   });
   const currentWeather = data?.current;
-  console.log('data',data);
+ 
+  const uniqueDates = [
+    ...new Set(
+      data?.daily.map(
+        (entry) => new Date(entry.dt * 1000).toISOString().split('T')[0] // Lấy ngày
+      )
+    )
+  ];
+
+  const firstDataDate = uniqueDates.map( (date) => {
+      return data?.daily.find((entry) => {
+          const entryDate = new Date(entry.dt * 1000).toISOString().split('T')[0];
+          const entryTime = new Date(entry.dt * 1000).getHours();
+          return entryDate === date && entryTime >= 6;
+      });
+});
   //console.log('weather',data?.current.weather[0].description);
   if (isPending) {
     return (
@@ -150,6 +168,17 @@ export default function Home() {
     const year = localDate.getUTCFullYear();
 
     return `(${day}.${month}.${year})`;
+};
+  const formatDate = (timestamp: number) => {
+    const gmt7Offset = 7 * 3600; // Độ lệch GMT+7 (giây)
+    const localDate = new Date((timestamp + gmt7Offset) * 1000); // Chuyển đổi timestamp
+    // Lấy các phần của ngày
+ 
+    const day = String(localDate.getUTCDate()).padStart(2, '0');
+    const month = String(localDate.getUTCMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+    
+
+    return `${day}.${month}`;
 };
 const getdayOfWeek = (timestamp: number) => {
   const gmt7Offset = 7 * 3600; // Độ lệch GMT+7 (giây)
@@ -178,6 +207,20 @@ const getdayOfWeek = (timestamp: number) => {
     
     <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
       <Navbar />
+      <Fab   
+        color="primary"
+        size="small"
+        sx={{ 
+          position: 'fixed', 
+          bottom: 16, 
+          right: 10,
+          backgroundColor: '#000000',
+          
+        }}
+        href="https://github.com/UIT-21522268/weather-app-demo"
+      > 
+        <GitHubIcon />
+      </Fab>
       <main className="px-9 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
         {/* today*/}
         <section>
@@ -197,7 +240,7 @@ const getdayOfWeek = (timestamp: number) => {
                   </p>
                </div>
                {/* time and weather icon */}
-               <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
+               <div className="flex  gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
                   {data.hourly.map((d,i)=>(
                      <div 
                      key = {i}
@@ -224,9 +267,9 @@ const getdayOfWeek = (timestamp: number) => {
                       <WeatherIcon iconname={getDayorNightIcon(data.hourly?.[0]?.weather?.[0]?.icon,data.hourly?.[0]?.dt ? String(data.hourly?.[0]?.dt ) : '' )} />
                   </Container>
                   {/* right */}
-                  <Container className="gap-6 sm:gap-16 overflow-x-auto w-full justify-between px-5 bg-[#91cfec] ">
+                  <Container className=" gap-6 sm:gap-16 overflow-x-auto w-full justify-between px-5 " color="bg-[#91cfec]">
                       <WeatherDetail visability={meterToKilometer(data.current.visibility)} humidity={`${data.current.humidity}%`}  
-                              windSpeed={`${data.current.wind_speed}km/h`}  airPressure={`${data.current.pressure}hPa`} 
+                              windSpeed={`${data.current.wind_speed} km/h`}  airPressure={`${data.current.pressure}hPa`} 
                               sunrise= {new Date(data.current.sunrise * 1000).toLocaleTimeString('vi-VI', {   
                                       hour: '2-digit',
                                       minute: '2-digit',
@@ -243,8 +286,38 @@ const getdayOfWeek = (timestamp: number) => {
             </div>
         </section>
         {/* forecast 7 days */}
-        <section>
+        <section className="flex w-full flex-col gap-4 mt-3">
           <h2 className="text-3xl text-[#F78C6A]">7-Day Forecast</h2>
+          {firstDataDate.map((d,i)=>(
+              <ForecastWeatherDetail 
+                key= {i}
+                description={d?.weather?.[0]?.description ?? ''}
+                weatherIcon={d?.weather?.[0]?.icon ?? ''}
+                date ={formatDate(d?.dt ?? 0)} 
+                day = {getdayOfWeek(d?.dt ?? 0)}
+                feels_like={d?.feels_like?.day ?? NaN}
+                temp={d?.temp?.day ?? 0}
+                temp_min={d?.temp?.min ?? 0}
+                temp_max={d?.temp?.max ?? 0}
+                airPressure={`${d?.pressure ?? 0} hPa`}
+                humidity={`${d?.humidity ?? 0}%`}
+                windSpeed={`${d?.wind_speed ?? 0} km/h`}
+                sunrise={new Date(d?.sunrise ?? 0).toLocaleTimeString('vi-VI', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+                sunset={new Date(d?.sunset ?? 0).toLocaleTimeString('vi-VI', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+                visability={meterToKilometer(data.current.visibility ?? 10000)}
+                
+                
+              
+              /> 
+          ))}
         </section>
        
       </main>
@@ -253,3 +326,5 @@ const getdayOfWeek = (timestamp: number) => {
 
   );
 }
+
+
