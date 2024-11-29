@@ -1,3 +1,4 @@
+/** @format */
 'use client'
 import WeatherDetail from "./components/WeatherDetail";
 import {getDayorNightIcon} from "./ultis/getDayorNightIcon";
@@ -8,143 +9,112 @@ import {meterToKilometer} from "./ultis/meterToKm";
 import ForecastWeatherDetail from "./components/ForecastWeatherDetail";
 import Fab from '@mui/material/Fab';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import {
-
-  useQuery
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { loadingCityAtom, placeAtom } from "./atom";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
+import { useQuery } from "react-query";
 import axios from "axios";
 import Container from "./components/Container";
 
-interface WeatherData {
-  lat: number;
-  lon: number;
-  timezone: string;
-  timezone_offset: number;
-  current: CurrentWeather;
-  hourly: HourlyWeather[];
-  daily: DailyWeather[]; // Thêm vào dữ liệu daily
-}
-
-interface CurrentWeather {
+interface WeatherDetail {
   dt: number;
-  sunrise: number;
-  sunset: number;
-  temp: number;
-  feels_like: number;
-  pressure: number;
-  humidity: number;
-  dew_point: number;
-  uvi: number;
-  clouds: number;
+  main: {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+    pressure: number;
+    sea_level: number;
+    grnd_level: number;
+    humidity: number;
+    temp_kf: number;
+  };
+  weather: {
+    id: number;
+    main: string;
+    description: string;
+    icon: string;
+  }[];
+  clouds: {
+    all: number;
+  };
+  wind: {
+    speed: number;
+    deg: number;
+    gust: number;
+  };
   visibility: number;
-  wind_speed: number;
-  wind_deg: number;
-  weather: WeatherCondition[];
-  rain?: RainData;
-}
-
-interface HourlyWeather {
-  dt: number;
-  temp: number;
-  feels_like: number;
-  pressure: number;
-  humidity: number;
-  dew_point: number;
-  uvi: number;
-  clouds: number;
-  visibility: number;
-  wind_speed: number;
-  wind_deg: number;
-  wind_gust?: number;
-  weather: WeatherCondition[];
   pop: number;
-  rain?: RainData;
+  sys: {
+    pod: string;
+  };
+  dt_txt: string;
 }
 
-interface DailyWeather {
-  dt: number;
-  sunrise: number;
-  sunset: number;
-  moonrise: number;
-  moonset: number;
-  moon_phase: number;
-  summary: string; // Mô tả ngắn về thời tiết trong ngày
-  temp: DailyTemperature;
-  feels_like: DailyFeelsLike;
-  pressure: number;
-  humidity: number;
-  dew_point: number;
-  wind_speed: number;
-  wind_deg: number;
-  wind_gust?: number;
-  weather: WeatherCondition[];
-  clouds: number;
-  pop: number; // Xác suất mưa
-  rain?: number; // Lượng mưa (nếu có)
-  uvi: number; // Chỉ số UV
-}
-
-interface DailyTemperature {
-  day: number;
-  min: number;
-  max: number;
-  night: number;
-  eve: number;
-  morn: number;
-}
-
-interface DailyFeelsLike {
-  day: number;
-  night: number;
-  eve: number;
-  morn: number;
-}
-
-interface WeatherCondition {
-  id: number;
-  main: string;
-  description: string;
-  icon: string;
-}
-
-interface RainData {
-  "1h": number;
+interface WeatherData {
+  cod: string;
+  message: number;
+  cnt: number;
+  list: WeatherDetail[];
+  city: {
+    id: number;
+    name: string;
+    coord: {
+      lat: number;
+      lon: number;
+    };
+    country: string;
+    population: number;
+    timezone: number;
+    sunrise: number;
+    sunset: number;
+  };
 }
 
 
-
-
-
+const queryClient = new QueryClient();
 //https://api.openweathermap.org/data/3.0/onecall?lat=10.762622&lon=106.660172&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}
 //https://api.openweathermap.org/data/3.0/onecall?lat=10.762622&lon=106.660172&appid=d2c2c7720275533fa94738ce5ff0cd91
 //thoi tiet tphcm
-export default function Home() {
-  const { isPending, error, data } = useQuery<WeatherData>({
-    queryKey: ['repoData'],
-    queryFn: async () => { //35:38 
-      const { data } = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?lat=10.762622&lon=106.660172&units=metric&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}`);
+ function Home() {
+
+  const [place, setPlace] = useAtom(placeAtom);
+  const [loadingCity] = useAtom(loadingCityAtom);
+
+  const { isLoading, error, data, refetch } = useQuery<WeatherData>(
+    "repoData",
+    async () => {
+      const { data } = await axios.get(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56&units=metric`
+      );
       return data;
     }
-  });
-  const currentWeather = data?.current;
- 
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [place, refetch]);
+  
   const uniqueDates = [
     ...new Set(
-      data?.daily.map(
-        (entry) => new Date(entry.dt * 1000).toISOString().split('T')[0] // Lấy ngày
+      data?.list.map(
+        (entry) => new Date(entry.dt * 1000).toISOString().split("T")[0]
       )
     )
   ];
-
+  
   const firstDataDate = uniqueDates.map( (date) => {
-      return data?.daily.find((entry) => {
-          const entryDate = new Date(entry.dt * 1000).toISOString().split('T')[0];
-          const entryTime = new Date(entry.dt * 1000).getHours();
-          return entryDate === date && entryTime >= 6;
-      });
-});
+    return data?.list.find((entry) => {
+      const entryDate = new Date(entry.dt * 1000).toISOString().split("T")[0];
+      const entryTime = new Date(entry.dt * 1000).getHours();
+      return entryDate === date && entryTime >= 6;
+    });
+  });
+  const currentWeather = data?.list[0];
+  console.log(data);
   //console.log('weather',data?.current.weather[0].description);
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="relative">
@@ -200,13 +170,17 @@ const getdayOfWeek = (timestamp: number) => {
   return `${dayOfWeek}`;
 };
 //bg-gray-100
-  if (error) return 'An error has occurred: ' + error.message;
+  if (error) return (<div className="flex items-center min-h-screen justify-center">
+            {/* @ts-ignore */}
+            <p className="text-red-400">{error.message}</p>
+          </div>
+        );
   return (
     //https://api.openweathermap.org/data/2.5/weather?q=London&appid=127ea425bde1d0716b95f62732f7f9b7&cnt=56
     //https://api.openweathermap.org/data/3.0/onecall?lat=33.44&lon=-94.04&appid=127ea425bde1d0716b95f62732f7f9b7
     
     <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
-      <Navbar />
+      <Navbar location={place} />
       <Fab   
         color="primary"
         size="small"
@@ -232,16 +206,16 @@ const getdayOfWeek = (timestamp: number) => {
             </h2>
             <Container className="gap-10 px-6 items-center w-full">
                <div className="flex flex-col gap-0 items-center content-center "> 
-                  <div className="text-5xl pl-3">{Math.floor(currentWeather?.temp ?? 0)}°</div>
-                  <div className="text-sm">Feels like {Math.floor(currentWeather?.feels_like ?? 0)}°</div>
+                  <div className="text-5xl pl-3">{Math.floor(currentWeather?.main.temp ?? 0)}°</div>
+                  <div className="text-sm text-nowrap">Feels like {Math.floor(currentWeather?.main.feels_like ?? 0)}°</div>
                   <p className="text-xs space-x-2">
-                    <span className="text-[#F04770] font-medium">{Math.floor(data.daily[0].temp.max)}↑°</span>
-                    <span className="text-[#108AB1] font-medium">{Math.floor(data.daily[0].temp.min)}↓°</span>
+                    <span className="text-[#F04770] font-medium">{Math.floor(currentWeather?.main.temp_max ?? 0)}↑°</span>
+                    <span className="text-[#108AB1] font-medium">{Math.floor(currentWeather?.main.temp_min ?? 0)}↓°</span>
                   </p>
                </div>
                {/* time and weather icon */}
                <div className="flex  gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
-                  {data.hourly.map((d,i)=>(
+                  {data?.list.map((d: WeatherDetail, i: number) => (
                      <div 
                      key = {i}
                      className="flex flex-col justify-between gap-2 items-center text-xs font-semibold">
@@ -253,29 +227,33 @@ const getdayOfWeek = (timestamp: number) => {
                         })}
                         </p>
                         {/* <WeatherIcon iconname={data.hourly?.[i]?.weather?.[0]?.icon} /> */}
-                       <WeatherIcon iconname={getDayorNightIcon(data.hourly?.[i]?.weather?.[0]?.icon,data.hourly?.[i]?.dt ? String(data.hourly?.[i]?.dt * 1000) : '' )} /> 
-                        <p>{Math.floor(data.hourly[i].temp)}°</p>
+                       <WeatherIcon iconname={getDayorNightIcon( d.weather[0].icon,
+                            d.dt_txt )}
+                        
+                        /> 
+                        <p>{Math.floor(d?.main.temp ?? 0)}°</p>
                         
                      </div>
                   ))}
                </div>
             </ Container>
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-4 mt-6"> 
                   {/* left */}
                   <Container className="w-fit justify-center items-center flex-col ">
-                      <div className="text-lg px-7 capitalize text-nowrap">{data?.current.weather[0].description}</div>
-                      <WeatherIcon iconname={getDayorNightIcon(data.hourly?.[0]?.weather?.[0]?.icon,data.hourly?.[0]?.dt ? String(data.hourly?.[0]?.dt ) : '' )} />
+                      <div className="text-lg px-7 capitalize text-nowrap">{currentWeather?.weather[0].description}</div>
+                      <WeatherIcon iconname={getDayorNightIcon( currentWeather?.weather[0].icon ?? "",
+                      currentWeather?.dt_txt ?? "" )} />
                   </Container>
                   {/* right */}
                   <Container className=" gap-6 sm:gap-16 overflow-x-auto w-full justify-between px-5 " color="bg-[#91cfec]">
-                      <WeatherDetail visability={meterToKilometer(data.current.visibility)} humidity={`${data.current.humidity}%`}  
-                              windSpeed={`${data.current.wind_speed} km/h`}  airPressure={`${data.current.pressure}hPa`} 
-                              sunrise= {new Date(data.current.sunrise * 1000).toLocaleTimeString('vi-VI', {   
+                      <WeatherDetail visability={meterToKilometer(currentWeather?.visibility ?? 10000)} humidity={`${currentWeather?.main.humidity}%`}  
+                              windSpeed={`${currentWeather?.wind.speed} km/h`}  airPressure={`${currentWeather?.main.pressure}hPa`} 
+                              sunrise= {new Date((data?.city?.sunrise ?? 0) * 1000).toLocaleTimeString('vi-VI', {   
                                       hour: '2-digit',
                                       minute: '2-digit',
                                       hour12: true,
                                     })}  
-                              sunset= {new Date(data.current.sunset * 1000).toLocaleTimeString('vi-VI', {   
+                              sunset= {new Date((data?.city?.sunset ?? 0) * 1000).toLocaleTimeString('vi-VI', {   
                                 hour: '2-digit',
                                 minute: '2-digit',
                                 hour12: true,
@@ -295,24 +273,24 @@ const getdayOfWeek = (timestamp: number) => {
                 weatherIcon={d?.weather?.[0]?.icon ?? ''}
                 date ={formatDate(d?.dt ?? 0)} 
                 day = {getdayOfWeek(d?.dt ?? 0)}
-                feels_like={d?.feels_like?.day ?? NaN}
-                temp={d?.temp?.day ?? 0}
-                temp_min={d?.temp?.min ?? 0}
-                temp_max={d?.temp?.max ?? 0}
-                airPressure={`${d?.pressure ?? 0} hPa`}
-                humidity={`${d?.humidity ?? 0}%`}
-                windSpeed={`${d?.wind_speed ?? 0} km/h`}
-                sunrise={new Date(d?.sunrise ?? 0).toLocaleTimeString('vi-VI', {
+                feels_like={d?.main.feels_like ?? NaN}
+                temp={d?.main.temp ?? 0}
+                temp_min={d?.main.temp_min ?? 0}
+                temp_max={d?.main.temp_max ?? 0}
+                airPressure={`${d?.main.pressure ?? 0} hPa`}
+                humidity={`${d?.main.humidity ?? 0}%`}
+                windSpeed={`${d?.wind.speed ?? 0} km/h`}
+                sunrise={new Date(data?.city.sunrise ?? 0).toLocaleTimeString('vi-VI', {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true,
                 })}
-                sunset={new Date(d?.sunset ?? 0).toLocaleTimeString('vi-VI', {
+                sunset={new Date(data?.city.sunset ?? 0).toLocaleTimeString('vi-VI', {
                   hour: '2-digit',
                   minute: '2-digit',
                   hour12: true,
                 })}
-                visability={meterToKilometer(data.current.visibility ?? 10000)}
+                visability={meterToKilometer(d?.visibility ?? 10000)}
                 
                 
               
@@ -324,7 +302,8 @@ const getdayOfWeek = (timestamp: number) => {
     </div>
 
 
+    
   );
 }
 
-
+export default Home;
