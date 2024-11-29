@@ -86,7 +86,7 @@ const queryClient = new QueryClient();
     "repoData",
     async () => {
       const { data } = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56&units=metric`
+        `https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=d2c2c7720275533fa94738ce5ff0cd91&cnt=56&units=metric`
       );
       return data;
     }
