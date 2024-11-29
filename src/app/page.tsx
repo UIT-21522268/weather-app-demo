@@ -112,7 +112,7 @@ const queryClient = new QueryClient();
     });
   });
   const currentWeather = data?.list[0];
-  console.log(data);
+  
   //console.log('weather',data?.current.weather[0].description);
   if (isLoading) {
     return (
