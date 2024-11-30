@@ -1,6 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+<!-- About the Project -->
+## :star2: About the Project
+
+
+<!-- Screenshots -->
+### :camera: Screenshots
+
+<div align="center"> 
+  <img src="./image.png" alt="screenshot1" />
+  <img src="./image1.png" alt="screenshot2" />
+</div>
+
+
+<!-- TechStack -->
+### :space_invader: Tech Stack
+
+<details>
+  <summary>Client</summary>
+  <ul>
+    <li><a href="https://www.typescriptlang.org/">Typescript</a></li>
+    <li><a href="https://nextjs.org/">Next.js</a></li>
+    <li><a href="https://reactjs.org/">React.js</a></li>
+    <li><a href="https://tailwindcss.com/">TailwindCSS</a></li>
+  </ul>
+</details>
+
+<details>
+  <summary>API</summary>
+  <ul>
+    <li><a href="https://openweathermap.org/api/">OpenWeather API</a></li>
+  </ul>
+</details>
+
+
+
+<!-- Features -->
+### :dart: Features
+
+- 7 days weather forecast
+- Current weather: Wind Speed, Visability, Humidity, Air Pressure, Sun Rise, Sun Set, Temperature
+- Search city's weather 
+- Current location weather forecast
+
+<!-- Color Reference -->
+
+<!-- Env Variables -->
+### :key: Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+`API_KEY`
+NEXT_PUBLIC_WEATHER_KEY
+
+<!-- Getting Started -->
+## 	:toolbox: Getting Started
 
 First, run the development server:
 
