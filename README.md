@@ -56,7 +56,10 @@ NEXT_PUBLIC_WEATHER_KEY
 ## 	:toolbox: Getting Started
 
 First, install:
+```bash
 npm install --legacy-peer-deps
+```
+then, run:
 ```bash
 npm run dev
 # or
