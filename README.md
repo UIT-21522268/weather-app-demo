@@ -2,6 +2,8 @@
 <!-- About the Project -->
 ## :star2: About the Project
 
+### :sun_behind_rain_cloud: Live demo Weather app
+[Click me](https://weather-app-demo-ltk.vercel.app/)
 
 <!-- Screenshots -->
 ### :camera: Screenshots
